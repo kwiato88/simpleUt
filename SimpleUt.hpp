@@ -87,15 +87,15 @@ class MismatchFailure
 {
 public:
 	template <typename T>
-	MismatchFailure& expected(const T& exp)
+	MismatchFailure& expected(const char* exp, const T& expVal)
 	{
-		lines.push_back(std::string("Expected: ") + Failure::toString(exp));
+		lines.push_back(std::string("Expected: ") + exp + " which is " + Failure::toString(expVal));
 		return *this;
 	}
 	template <typename T>
-	MismatchFailure& actual(const T& act)
+	MismatchFailure& actual(const char* act, const T& actVal)
 	{
-		lines.push_back(std::string("Actual:   ") + Failure::toString(act));
+		lines.push_back(std::string("Actual:   ") + act + " which is " + Failure::toString(actVal));
 		return *this;
 	}
 	Failure get() const
@@ -110,9 +110,15 @@ class SameFailure
 {
 public:
 	template <typename T>
-	SameFailure& value(const T& val)
+	SameFailure& lValue(const char *exp, const T& val)
 	{
-		lines.push_back(std::string("Value: ") + Failure::toString(val));
+		lines.push_back(std::string("L: ") + exp + " which is " + Failure::toString(val));
+		return *this;
+	}
+	template <typename T>
+	SameFailure& rValue(const char *exp, const T& val)
+	{
+		lines.push_back(std::string("R: ") + exp + " which is " + Failure::toString(val));
 		return *this;
 	}
 	Failure get() const
@@ -236,13 +242,17 @@ private:
 	}
 
 #define IS_EQ(expectedVal, actualVal) do { \
-	if(expectedVal != actualVal) \
-		addFailure(MismatchFailure{}.expected(expectedVal).actual(actualVal).get(), __LINE__); \
+	auto exVal = (expectedVal); \
+	auto acVal = (actualVal); \
+	if(exVal != acVal) \
+		addFailure(MismatchFailure{}.expected(#expectedVal, exVal).actual(#actualVal, acVal).get(), __LINE__); \
 	} while(false)
 
 #define IS_NOT_EQ(expectedVal, actualVal) do { \
-	if(expectedVal == actualVal) \
-		addFailure(SameFailure{}.value(expectedVal).get(), __LINE__); \
+	auto exVal = (expectedVal); \
+	auto acVal = (actualVal); \
+	if(exVal == acVal) \
+		addFailure(SameFailure{}.lValue(#expectedVal, exVal).rValue(#actualVal, acVal).get(), __LINE__); \
 	} while(false)
 
 #define IS_TRUE(expression) do { \
