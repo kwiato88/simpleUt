@@ -53,5 +53,4 @@ int main()
 	RUN_TEST(Pass);
 
 	MAIN_END;
-	return 0;
 }

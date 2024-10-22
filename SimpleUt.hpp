@@ -224,6 +224,10 @@ public:
 		for(const auto& f : failures)
 			std::cout << "    " << f << std::endl;
 	}
+	std::size_t numofFailedTests() const
+	{
+		return failures.size();
+	}
 private:
 	std::size_t numOfTests = 0;
 	std::vector<std::string> failures;
@@ -266,4 +270,4 @@ private:
 	} while(false)
 
 #define MAIN_START Status summary
-#define MAIN_END summary.summary()
+#define MAIN_END summary.summary(); return summary.numofFailedTests()
